@@ -28,7 +28,6 @@ def keyboard_register():
 def vehicle_speed_up(level):
     global speed_level
     level = int(level)
-    level %= 4
     while True:
         fetch_speed_level()
         if speed_level < 4 and speed_level < level:
@@ -41,7 +40,6 @@ def vehicle_speed_up(level):
 def vehicle_speed_down(level):
     global speed_level
     level = int(level)
-    level %= 4
     while True:
         fetch_speed_level()
         if speed_level > -4 and speed_level > level:
@@ -75,6 +73,8 @@ def fetch_speed_level():
     if speed_level_src.value & 0x00ff0000:
         tmp = ((speed_level_src.value & 0xff) - 48 ) * 10
         tmp += ((speed_level_src.value & 0x00ff0000) >> 16) - 48
+        if tmp == 10:
+            tmp = 100
         speed_level = - tmp / 25
     else:
         speed_level = (speed_level_src.value & 0xff) - 48
