@@ -25,31 +25,40 @@ def keyboard_register():
     currentMouseX, currentMouseY = pyautogui.position()
     pyautogui.click()
     
-def vehicle_speed_up():
+def vehicle_speed_up(level):
     global speed_level
-    fetch_speed_level()
-    if speed_level < 4 :
-        pyautogui.keyDown('A')
-        time.sleep(0.1)
-        pyautogui.keyUp('A')
+    level = int(level)
+    level %= 4
+    while True:
+        fetch_speed_level()
+        if speed_level < 4 and speed_level < level:
+            pyautogui.keyDown('A')
+            time.sleep(0.1)
+            pyautogui.keyUp('A')
+        else:
+            break
         
-def vehicle_speed_down():
+def vehicle_speed_down(level):
     global speed_level
-    fetch_speed_level()
-    if speed_level > -4 :
-        pyautogui.keyDown('D')
-        time.sleep(0.1)
-        pyautogui.keyUp('D')
+    level = int(level)
+    level %= 4
+    while True:
+        fetch_speed_level()
+        if speed_level > -4 and speed_level > level:
+            pyautogui.keyDown('D')
+            time.sleep(0.1)
+            pyautogui.keyUp('D')
+        else:
+            break
         
 def pid(expect, current):
     K = 10
     error = expect - current
     out = K * error
     if out > 0:
-        for i in range(int(out)):
-            vehicle_speed_up()
+        vehicle_speed_up(out)
     elif out < 0:
-        vehicle_speed_down()
+        vehicle_speed_down(out)
     print("PID output: %.2f, Thres Level: %d" % (out, speed_level))
 
 kernel32 = ctypes.windll.LoadLibrary(r"kernel32.dll")  # 核心文件
