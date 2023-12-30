@@ -70,7 +70,7 @@ while True:
     )
     if speed_level_src.value & 0x00ff0000:
         tmp = ((speed_level_src.value & 0xff) - 48 ) * 10
-        tmp += (speed_level_src.value & 0x00ff0000) - 48
+        tmp += ((speed_level_src.value & 0x00ff0000) >> 16) - 48
         speed_level = - speed_level_src.value / 25
     else:
         speed_level = (speed_level_src.value & 0xff) - 48
