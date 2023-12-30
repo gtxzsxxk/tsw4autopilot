@@ -27,19 +27,19 @@ def keyboard_register():
     
 def vehicle_speed_up():
     global speed_level
+    fetch_speed_level()
     if speed_level < 4 :
         pyautogui.keyDown('A')
         time.sleep(0.1)
         pyautogui.keyUp('A')
-        speed_level += 1
         
 def vehicle_speed_down():
     global speed_level
-    if speed_level > -1 :
+    fetch_speed_level()
+    if speed_level > -4 :
         pyautogui.keyDown('D')
         time.sleep(0.1)
         pyautogui.keyUp('D')
-        speed_level -= 1
         
 def pid(expect, current):
     K = 10
@@ -57,13 +57,8 @@ PROCESS_ALL_ACCESS = 0x000F0000 | 0x00100000 | 0xFFF  # 调用最高权限执行
 process_id = win32process.GetWindowThreadProcessId(window_handle)[1]  # 获取进程ID
 process_handle = win32api.OpenProcess(PROCESS_ALL_ACCESS, False, process_id)  # 得到进程句柄
 
-keyboard_register()
-
-while True:
-    velocity = ctypes.c_float()
-    kernel32.ReadProcessMemory(
-        int(process_handle), velocity_addr, ctypes.byref(velocity), 4, None
-    )
+def fetch_speed_level():
+    global speed_level
     speed_level_src = ctypes.c_int32()
     kernel32.ReadProcessMemory(
         int(process_handle), speed_level_addr, ctypes.byref(speed_level_src), 4, None
@@ -71,10 +66,18 @@ while True:
     if speed_level_src.value & 0x00ff0000:
         tmp = ((speed_level_src.value & 0xff) - 48 ) * 10
         tmp += ((speed_level_src.value & 0x00ff0000) >> 16) - 48
-        speed_level = - speed_level_src.value / 25
+        speed_level = - tmp / 25
     else:
         speed_level = (speed_level_src.value & 0xff) - 48
-        
+
+keyboard_register()
+
+while True:
+    velocity = ctypes.c_float()
+    kernel32.ReadProcessMemory(
+        int(process_handle), velocity_addr, ctypes.byref(velocity), 4, None
+    )
+    fetch_speed_level()
     print("列车时速：%.2f, 节流阀：%d" % (velocity.value, speed_level))
-    # pid(120, velocity.value)
+    pid(120, velocity.value)
     time.sleep(0.2)
