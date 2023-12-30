@@ -26,6 +26,7 @@ def keyboard_register():
     pyautogui.click()
     
 def vehicle_speed_up(level):
+    # TODO: 操作前，控制鼠标点击游戏，控制完后，将鼠标还原
     global speed_level
     level = int(level)
     while True:
@@ -56,7 +57,8 @@ def pid(expect, current):
     if out > 0:
         vehicle_speed_up(out)
     elif out < 0:
-        vehicle_speed_down(out)
+        # deacceleration use -1
+        vehicle_speed_down(-1)
     print("PID output: %.2f, Thres Level: %d" % (out, speed_level))
 
 kernel32 = ctypes.windll.LoadLibrary(r"kernel32.dll")  # 核心文件
@@ -88,5 +90,5 @@ while True:
     )
     fetch_speed_level()
     print("列车时速：%.2f, 节流阀：%d" % (velocity.value, speed_level))
-    pid(120, velocity.value)
+    pid(40, velocity.value)
     time.sleep(0.2)
