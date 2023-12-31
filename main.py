@@ -1,12 +1,13 @@
 import ctypes
 import win32api
+import win32gui
 import time
 import win32process
 import pyautogui
 
-window_handle = 200542
-velocity_addr = 0x5B86962C
-speed_level_addr = 0x5A7BA8BA
+window_handle = 0
+velocity_addr = 0x5D6CF12C
+speed_level_addr = 0xBDB8617A
 screenMouseX, screenMouseY = 0, 0
 speed_level = 0
 target = 40
@@ -17,7 +18,7 @@ def game_focus():
 
 
 def keyboard_register():
-    global screenMouseX, screenMouseY
+    global screenMouseX, screenMouseY, window_handle
     print("移动鼠标到游戏，保持3秒")
     input("准备好：")
 
@@ -28,6 +29,7 @@ def keyboard_register():
     time.sleep(1)
 
     screenMouseX, screenMouseY = pyautogui.position()
+    window_handle = win32gui.WindowFromPoint(win32api.GetCursorPos())
     pyautogui.click()
 
 
@@ -71,9 +73,11 @@ def pid(expect, current):
         vehicle_speed_down(-1)
     print("PID output: %.2f, Thres Level: %d" % (out, speed_level))
 
+keyboard_register()
 
 kernel32 = ctypes.windll.LoadLibrary(r"kernel32.dll")  # 核心文件
 PROCESS_ALL_ACCESS = 0x000F0000 | 0x00100000 | 0xFFF  # 调用最高权限执行
+
 process_id = win32process.GetWindowThreadProcessId(window_handle)[1]  # 获取进程ID
 process_handle = win32api.OpenProcess(PROCESS_ALL_ACCESS, False, process_id)  # 得到进程句柄
 
@@ -94,7 +98,7 @@ def fetch_speed_level():
         speed_level = (speed_level_src.value & 0xFF) - 48
 
 
-keyboard_register()
+
 
 while True:
     velocity = ctypes.c_float()
