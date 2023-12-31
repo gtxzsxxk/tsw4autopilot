@@ -11,11 +11,16 @@ speed_level_addr = 0xBDB8617A
 screenMouseX, screenMouseY = 0, 0
 speed_level = 0
 target = 40
-
+beforeMouseX, beforeMouseY = 0,0
 
 def game_focus():
+    global beforeMouseX, beforeMouseY
+    beforeMouseX, beforeMouseY = pyautogui.position()
     pyautogui.click(screenMouseX, screenMouseY)
-
+    
+def game_unfocus():
+    # pyautogui.moveTo(beforeMouseX, beforeMouseY)
+    pass
 
 def keyboard_register():
     global screenMouseX, screenMouseY, window_handle
@@ -46,6 +51,7 @@ def vehicle_speed_up(level):
             pyautogui.keyUp("A")
         else:
             break
+    game_unfocus()
 
 
 def vehicle_speed_down(level):
@@ -60,6 +66,7 @@ def vehicle_speed_down(level):
             pyautogui.keyUp("D")
         else:
             break
+    game_unfocus()
 
 
 def pid(expect, current):
